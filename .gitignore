@@ -1,0 +1,98 @@
+############################
+# OS / Misc
+############################
+.DS_Store
+Thumbs.db
+desktop.ini
+
+############################
+# Gradle / Java build
+############################
+.gradle/
+**/.gradle/
+**/build/
+**/target/
+# keep wrapper jar
+!gradle/wrapper/gradle-wrapper.jar
+
+############################
+# Spring / Secrets (중요)
+############################
+**/.env
+**/.env.*
+!**/.env.example
+
+**/application.yml
+**/application.properties
+!**/application.yml.example
+!**/application.properties.example
+
+############################
+# STS (Eclipse)
+############################
+.apt_generated/
+.classpath
+.factorypath
+.project
+.settings/
+.springBeans
+.sts4-cache/
+bin/
+
+############################
+# IntelliJ IDEA / JetBrains
+############################
+.idea/
+*.iws
+*.iml
+*.ipr
+out/
+
+############################
+# NetBeans
+############################
+/nbproject/private/
+/nbbuild/
+/dist/
+/nbdist/
+/.nb-gradle/
+
+############################
+# VS Code
+############################
+.vscode/
+
+############################
+# Node / Frontend (React/Vite/Next)
+############################
+**/node_modules/
+**/dist/
+**/dist-ssr/
+**/.vite/
+**/.next/
+**/coverage/
+**/.cache/
+**/.turbo/
+
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+lerna-debug.log*
+
+*.local
+
+############################
+# Logs
+############################
+**/logs/
+*.log
+
+############################
+# Windows / Visual Studio junk
+############################
+*.suo
+*.ntvs*
+*.njsproj
+*.sln
+*.sw?
