@@ -18,6 +18,7 @@ public class IntegrationJobConfig {
 
     private final Step locationStep;
     private final Step measurementStep;
+    private final Step sequenceSyncStep;
 
     @Bean
     public Job integrationJob() {
@@ -25,6 +26,7 @@ public class IntegrationJobConfig {
                 .incrementer(new RunIdIncrementer())
                 .start(locationStep)
                 .next(measurementStep)
+                .next(sequenceSyncStep)
                 .build();
     }
 
