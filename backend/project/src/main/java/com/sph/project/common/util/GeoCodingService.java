@@ -29,6 +29,7 @@ public class GeoCodingService {
 
     public GeoCodingResponse geocode(String address) {
         try {
+            log.info("입력된 주소: {}", address);
             GeocodingResult[] results = GeocodingApi.geocode(context, address)
                     .language("ko")
                     .await();
@@ -42,6 +43,7 @@ public class GeoCodingService {
     // 위도/경도 거꾸로임
     public GeoCodingResponse reverseGeocode(double x, double y) {
         try {
+            log.info("경도(x): {}, 위도(y): {}", x, y);
             // 구글 SDK는 LatLng(위도, 경도) 순서임
             GeocodingResult[] results = GeocodingApi.reverseGeocode(context, new LatLng(y, x))
                     .language("ko")
