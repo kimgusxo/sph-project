@@ -21,13 +21,23 @@ repositories {
 dependencies {
 	implementation 'org.springframework.boot:spring-boot-starter'
     implementation 'org.springframework.boot:spring-boot-starter-web'
+
     implementation 'org.springframework.boot:spring-boot-starter-data-jpa'
     runtimeOnly 'org.postgresql:postgresql'
+
     implementation 'org.springframework.boot:spring-boot-starter-batch'
+    implementation 'org.springframework.batch.extensions:spring-batch-excel:0.2.0'
+    implementation 'org.apache.poi:poi-ooxml:5.5.1'
+
     implementation 'org.hibernate.orm:hibernate-spatial'
     implementation 'org.locationtech.jts:jts-core:1.19.0'
+
     compileOnly 'org.projectlombok:lombok'
     annotationProcessor 'org.projectlombok:lombok'
+
+    implementation 'com.google.maps:google-maps-services:2.2.0'
+
+    implementation 'org.slf4j:slf4j-simple:1.7.36'
 
 	testImplementation 'org.springframework.boot:spring-boot-starter-test'
 	testRuntimeOnly 'org.junit.platform:junit-platform-launcher'
