@@ -17,7 +17,6 @@ import org.springframework.transaction.PlatformTransactionManager;
 
 @Configuration
 @RequiredArgsConstructor
-@Slf4j
 public class MeasurementJobConfig {
 
     private final JobRepository jobRepository;
@@ -25,13 +24,6 @@ public class MeasurementJobConfig {
     private final PoiItemReader<MeasurementExcel> reader;
     private final MeasurementItemProcessor processor;
     private final MeasurementItemWriter writer;
-
-    @Bean
-    public Job measurementJob() {
-        return new JobBuilder("measurementJob", jobRepository)
-                .start(measurementStep())
-                .build();
-    }
 
     @Bean
     public Step measurementStep() {

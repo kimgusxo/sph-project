@@ -26,13 +26,6 @@ public class LocationJobConfig {
     private final LocationItemWriter writer;
 
     @Bean
-    public Job locationJob() {
-        return new JobBuilder("locationJob", jobRepository)
-                .start(locationStep())
-                .build();
-    }
-
-    @Bean
     public Step locationStep() {
         return new StepBuilder("locationStep", jobRepository)
                 .<LocationExcel, Location>chunk(100, transactionManager)
