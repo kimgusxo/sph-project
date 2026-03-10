@@ -16,6 +16,7 @@ import lombok.NoArgsConstructor;
 public class Measurement {
 
     @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "system_id")
     private Long systemId;
 
