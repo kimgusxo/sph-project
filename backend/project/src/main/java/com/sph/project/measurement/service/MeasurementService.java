@@ -23,6 +23,10 @@ public class MeasurementService {
 
     @Transactional
     public CreateMeasurementResponse createMeasurement(CreateMeasurementRequest req) {
+        if (req.getLocationSystemId() == null || (req.getMaxVal() == null && req.getMinVal() == null && req.getAvgVal() == null)) {
+            throw new CustomException(ErrorCode.BAD_REQUEST);
+        }
+
         Location location = locationRepository.findById(req.getLocationSystemId())
                 .orElseThrow(() -> new CustomException(ErrorCode.MEASUREMENT_LOCATION_NOT_FOUND));
 

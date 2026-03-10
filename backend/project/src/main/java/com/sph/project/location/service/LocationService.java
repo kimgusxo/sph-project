@@ -38,22 +38,18 @@ public class LocationService {
         Double x = createLocationRequest.getX();
         Double y = createLocationRequest.getY();
 
-        if (x == null && y == null) {
+        if ((address == null || address.trim().isEmpty()) && (x == null || y == null)) {
+            throw new CustomException(ErrorCode.INVALID_LOCATION_INPUT);
+        }
+
+        if (x == null || y == null) {
+            // 주소가 있을 때
             GeoCodingResponse res = geoCodingService.geocode(address);
-
-            if (res == null) {
-                throw new CustomException(ErrorCode.GEOCODING_NOT_FOUND);
-            }
-
             x = res.getX();
             y = res.getY();
         } else {
+            // 좌표가 있을 때
             GeoCodingResponse res = geoCodingService.reverseGeocode(x, y);
-
-            if (res == null) {
-                throw new CustomException(ErrorCode.REVERSE_GEOCODING_NOT_FOUND);
-            }
-
             address = res.getAddress();
         }
 
@@ -74,21 +70,25 @@ public class LocationService {
 
     @Transactional
     public GeoJsonResponse searchAroundByCoordinate(Double x, Double y) {
+        if(x == null || y == null) {
+            throw new CustomException(ErrorCode.BAD_REQUEST);
+        }
+
+        if (x < -180 || x > 180 || y < -90 || y > 90) {
+            throw new CustomException(ErrorCode.INVALID_COORDINATE);
+        }
+
         List<Location> locations = locationRepository.findAround(x, y, RADIUS);
         return GeoJsonResponse.from(locations);
     }
 
     @Transactional
     public GeoJsonResponse searchAroundByAddress(String address) {
-        if (address == null) {
+        if (address == null || address.trim().isEmpty()) {
             throw new CustomException(ErrorCode.BAD_REQUEST);
         }
 
         GeoCodingResponse res = geoCodingService.geocode(address);
-
-        if (res == null) {
-            throw new CustomException(ErrorCode.GEOCODING_NOT_FOUND);
-        }
 
         List<Location> locations = locationRepository.findAround(res.getX(), res.getY(), RADIUS);
 
