@@ -8,22 +8,22 @@ import BaseModal, {
 export default function RadiusSearchModal({ onClose, onSubmit }) {
   const [tab, setTab] = useState("address");
   const [address, setAddress] = useState("");
-  const [lon, setLon] = useState("");
-  const [lat, setLat] = useState("");
+  const [x, setX] = useState("");
+  const [y, setY] = useState("");
 
   const handleConfirm = () => {
-    if (tab === "coordinate") {
+    if (tab === "address") {
       onSubmit({
-        mode: "coordinate",
-        lon,
-        lat,
+        mode: "address",
+        address,
       });
       return;
     }
 
     onSubmit({
-      mode: "address",
-      address,
+      mode: "coordinate",
+      x,
+      y,
     });
   };
 
@@ -62,16 +62,15 @@ export default function RadiusSearchModal({ onClose, onSubmit }) {
           <ModalInputRow
             label="경도(x)"
             placeholder="경도를 입력해주세요."
-            value={lon}
-            onChange={(e) => setLon(e.target.value)}
+            value={x}
+            onChange={(e) => setX(e.target.value)}
             inputMode="decimal"
           />
-
           <ModalInputRow
             label="위도(y)"
             placeholder="위도를 입력해주세요."
-            value={lat}
-            onChange={(e) => setLat(e.target.value)}
+            value={y}
+            onChange={(e) => setY(e.target.value)}
             inputMode="decimal"
           />
         </>

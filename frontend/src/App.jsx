@@ -5,179 +5,143 @@ import LocationCreateModal from "./components/modals/LocationCreateModal";
 import MeasurementRegisterModal from "./components/modals/MeasurementRegisterModal";
 import RadiusSearchModal from "./components/modals/RadiusSearchModal";
 import {
-  DEFAULT_RADIUS_METERS,
-  INITIAL_LOCATIONS,
-  resolveMockAddress,
-} from "./data/mockData";
+  createLocation,
+  searchAroundByAddress,
+  searchAroundByCoordinate,
+} from "./api/locationApi";
+import { createMeasurement } from "./api/measurementApi";
 import { toNumber } from "./utils/geo";
 
 export default function App() {
-  const [locations, setLocations] = useState(INITIAL_LOCATIONS);
   const [openModal, setOpenModal] = useState(null);
-  const [radiusQuery, setRadiusQuery] = useState(null);
+  const [mapLocations, setMapLocations] = useState([]);
   const [focusTarget, setFocusTarget] = useState(null);
 
   const closeModal = () => setOpenModal(null);
 
-  const moveMapTo = ({ lon, lat, locationId = null }) => {
+  const moveMapTo = ({ x, y, systemId = null }) => {
+    if (x == null || y == null) return;
+
     setFocusTarget({
       key: Date.now(),
-      lon,
-      lat,
-      locationId,
+      x,
+      y,
+      systemId,
     });
   };
 
-  const handleCreateLocation = (payload) => {
-    if (payload.mode === "coordinate") {
-      const lon = toNumber(payload.lon);
-      const lat = toNumber(payload.lat);
+  const handleCreateLocation = async (payload) => {
+    try {
+      if (payload.mode === "address") {
+        const address = String(payload.address ?? "").trim();
 
-      if (lon === null || lat === null) {
-        alert("경도와 위도를 올바르게 입력해주세요.");
+        if (!address) {
+          alert("주소를 입력해주세요.");
+          return;
+        }
+
+        await createLocation({ address });
+      } else {
+        const x = toNumber(payload.x);
+        const y = toNumber(payload.y);
+
+        if (x === null || y === null) {
+          alert("경도(x), 위도(y)를 올바르게 입력해주세요.");
+          return;
+        }
+
+        await createLocation({ x, y });
+      }
+
+      closeModal();
+      alert("위치가 생성되었습니다.");
+    } catch (error) {
+      console.error(error);
+      alert("위치 생성에 실패했습니다.");
+    }
+  };
+
+  const handleCreateMeasurement = async (payload) => {
+    try {
+      const locationSystemId = toNumber(payload.locationSystemId);
+      const maxVal = toNumber(payload.maxVal);
+      const minVal = toNumber(payload.minVal);
+      const avgVal = toNumber(payload.avgVal);
+
+      if (
+        locationSystemId === null ||
+        maxVal === null ||
+        minVal === null ||
+        avgVal === null
+      ) {
+        alert("모든 값을 올바르게 입력해주세요.");
         return;
       }
 
-      const nextId =
-        locations.length > 0
-          ? Math.max(...locations.map((item) => item.id)) + 1
-          : 1;
+      await createMeasurement({
+        locationSystemId,
+        maxVal,
+        minVal,
+        avgVal,
+      });
 
-      const newLocation = {
-        id: nextId,
-        name: `측정 지점 ${nextId}`,
-        address: `좌표 생성 (${lon}, ${lat})`,
-        lon,
-        lat,
-        measurement: null,
-      };
-
-      setLocations((prev) => [...prev, newLocation]);
       closeModal();
-      moveMapTo({ lon, lat, locationId: nextId });
-      return;
+      alert("측정값이 등록되었습니다.");
+    } catch (error) {
+      console.error(error);
+      alert("측정값 등록에 실패했습니다.");
     }
-
-    const resolved = resolveMockAddress(payload.address);
-
-    if (!resolved) {
-      alert(
-        "현재 주소 생성은 mock 데이터 기반입니다.\n예: 서울특별시 중구 세종대로 110"
-      );
-      return;
-    }
-
-    const nextId =
-      locations.length > 0
-        ? Math.max(...locations.map((item) => item.id)) + 1
-        : 1;
-
-    const newLocation = {
-      id: nextId,
-      name: resolved.name ?? `측정 지점 ${nextId}`,
-      address: resolved.address,
-      lon: resolved.lon,
-      lat: resolved.lat,
-      measurement: null,
-    };
-
-    setLocations((prev) => [...prev, newLocation]);
-    closeModal();
-    moveMapTo({
-      lon: resolved.lon,
-      lat: resolved.lat,
-      locationId: nextId,
-    });
   };
 
-  const handleRegisterMeasurement = (payload) => {
-    const locationId = toNumber(payload.locationId);
-    const maxVal = toNumber(payload.maxVal);
-    const minVal = toNumber(payload.minVal);
-    const avgVal = toNumber(payload.avgVal);
+  const handleSearchAround = async (payload) => {
+    try {
+      let response;
 
-    if (
-      locationId === null ||
-      maxVal === null ||
-      minVal === null ||
-      avgVal === null
-    ) {
-      alert("모든 값을 숫자로 입력해주세요.");
-      return;
-    }
+      if (payload.mode === "address") {
+        const address = String(payload.address ?? "").trim();
 
-    const target = locations.find((item) => item.id === locationId);
+        if (!address) {
+          alert("주소를 입력해주세요.");
+          return;
+        }
 
-    if (!target) {
-      alert("해당 위치 ID가 존재하지 않습니다.");
-      return;
-    }
+        response = await searchAroundByAddress(address);
+      } else {
+        const x = toNumber(payload.x);
+        const y = toNumber(payload.y);
 
-    setLocations((prev) =>
-      prev.map((item) =>
-        item.id === locationId
-          ? {
-              ...item,
-              measurement: {
-                maxVal,
-                minVal,
-                avgVal,
-              },
-            }
-          : item
-      )
-    );
+        if (x === null || y === null) {
+          alert("경도(x), 위도(y)를 올바르게 입력해주세요.");
+          return;
+        }
 
-    closeModal();
-    moveMapTo({
-      lon: target.lon,
-      lat: target.lat,
-      locationId: target.id,
-    });
-  };
-
-  const handleRadiusSearch = (payload) => {
-    if (payload.mode === "coordinate") {
-      const lon = toNumber(payload.lon);
-      const lat = toNumber(payload.lat);
-
-      if (lon === null || lat === null) {
-        alert("경도와 위도를 올바르게 입력해주세요.");
-        return;
+        response = await searchAroundByCoordinate(x, y);
       }
 
-      const nextQuery = {
-        lon,
-        lat,
-        label: `좌표 조회 (${lon}, ${lat})`,
-        radiusMeters: DEFAULT_RADIUS_METERS,
-      };
-
-      setRadiusQuery(nextQuery);
+      const features = response?.features ?? [];
+      setMapLocations(features);
       closeModal();
-      moveMapTo({ lon, lat });
-      return;
+
+      if (features.length > 0) {
+        const first = features[0];
+        const [x, y] = first?.geometry?.coordinates ?? [];
+
+        moveMapTo({
+          x,
+          y,
+          systemId: first?.properties?.systemId ?? null,
+        });
+      }
+
+      alert("반경 조회가 완료되었습니다.");
+    } catch (error) {
+      console.error(error);
+      alert("반경 조회에 실패했습니다.");
     }
+  };
 
-    const resolved = resolveMockAddress(payload.address);
-
-    if (!resolved) {
-      alert(
-        "현재 주소 조회는 mock 데이터 기반입니다.\n예: 서울특별시 중구 세종대로 110"
-      );
-      return;
-    }
-
-    const nextQuery = {
-      lon: resolved.lon,
-      lat: resolved.lat,
-      label: resolved.address,
-      radiusMeters: DEFAULT_RADIUS_METERS,
-    };
-
-    setRadiusQuery(nextQuery);
-    closeModal();
-    moveMapTo({ lon: resolved.lon, lat: resolved.lat });
+  const handleClearRadius = () => {
+    setMapLocations([]);
   };
 
   return (
@@ -188,14 +152,13 @@ export default function App() {
           onOpenLocation={() => setOpenModal("location")}
           onOpenMeasurement={() => setOpenModal("measurement")}
           onOpenRadius={() => setOpenModal("radius")}
-          onClearRadius={() => setRadiusQuery(null)}
-          hasRadiusQuery={Boolean(radiusQuery)}
+          onClearRadius={handleClearRadius}
+          hasRadiusQuery={mapLocations.length > 0}
         />
 
         <main className="app-content">
           <OpenLayersMap
-            locations={locations}
-            radiusQuery={radiusQuery}
+            locations={mapLocations}
             focusTarget={focusTarget}
           />
         </main>
@@ -211,14 +174,14 @@ export default function App() {
       {openModal === "measurement" && (
         <MeasurementRegisterModal
           onClose={closeModal}
-          onSubmit={handleRegisterMeasurement}
+          onSubmit={handleCreateMeasurement}
         />
       )}
 
       {openModal === "radius" && (
         <RadiusSearchModal
           onClose={closeModal}
-          onSubmit={handleRadiusSearch}
+          onSubmit={handleSearchAround}
         />
       )}
     </>
