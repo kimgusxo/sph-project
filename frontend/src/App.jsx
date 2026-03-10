@@ -95,51 +95,56 @@ export default function App() {
   };
 
   const handleSearchAround = async (payload) => {
-    try {
-      let response;
+  try {
+    let response;
 
-      if (payload.mode === "address") {
-        const address = String(payload.address ?? "").trim();
+    if (payload.mode === "address") {
+      const address = String(payload.address ?? "").trim();
 
-        if (!address) {
-          alert("주소를 입력해주세요.");
-          return;
-        }
-
-        response = await searchAroundByAddress(address);
-      } else {
-        const x = toNumber(payload.x);
-        const y = toNumber(payload.y);
-
-        if (x === null || y === null) {
-          alert("경도(x), 위도(y)를 올바르게 입력해주세요.");
-          return;
-        }
-
-        response = await searchAroundByCoordinate(x, y);
+      if (!address) {
+        alert("주소를 입력해주세요.");
+        return;
       }
 
-      const features = response?.features ?? [];
-      setMapLocations(features);
-      closeModal();
+      response = await searchAroundByAddress(address);
+    } else {
+      const x = toNumber(payload.x);
+      const y = toNumber(payload.y);
 
-      if (features.length > 0) {
-        const first = features[0];
-        const [x, y] = first?.geometry?.coordinates ?? [];
-
-        moveMapTo({
-          x,
-          y,
-          systemId: first?.properties?.systemId ?? null,
-        });
+      if (x === null || y === null) {
+        alert("경도(x), 위도(y)를 올바르게 입력해주세요.");
+        return;
       }
 
-      alert("반경 조회가 완료되었습니다.");
-    } catch (error) {
-      console.error(error);
-      alert(`반경 조회에 실패했습니다.\n사유: ${getApiErrorMessage(error)}`);
+      response = await searchAroundByCoordinate(x, y);
     }
-  };
+
+    const features = response?.features ?? [];
+
+    // 조회 결과를 지도 마커 데이터로 저장
+    setMapLocations(features);
+
+    // 모달 닫기
+    closeModal();
+
+    // 첫 번째 결과가 있으면 그 위치로 지도 이동
+    if (features.length > 0) {
+      const first = features[0];
+      const [x, y] = first?.geometry?.coordinates ?? [];
+
+      moveMapTo({
+        x,
+        y,
+        systemId: first?.properties?.systemId ?? null,
+      });
+    }
+
+    alert("반경 조회가 완료되었습니다.");
+  } catch (error) {
+    console.error(error);
+    alert(`반경 조회에 실패했습니다.\n사유: ${getApiErrorMessage(error)}`);
+  }
+};
 
   const handleClearRadius = () => {
     setMapLocations([]);

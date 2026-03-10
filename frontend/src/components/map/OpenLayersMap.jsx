@@ -120,6 +120,9 @@ export default function OpenLayersMap({ locations, focusTarget }) {
 
     return () => {
       map.setTarget(undefined);
+      mapRef.current = null;
+      overlayRef.current = null;
+      locationSourceRef.current = null;
     };
   }, []);
 
