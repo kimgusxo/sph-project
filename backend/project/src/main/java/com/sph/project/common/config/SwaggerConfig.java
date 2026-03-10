@@ -1,14 +1,9 @@
 package com.sph.project.common.config;
 
-import io.swagger.v3.oas.models.Components;
 import io.swagger.v3.oas.models.OpenAPI;
 import io.swagger.v3.oas.models.info.Info;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
-import org.springframework.http.MediaType;
-import org.springframework.http.converter.json.MappingJackson2HttpMessageConverter;
-
-import java.util.ArrayList;
 
 @Configuration
 public class SwaggerConfig {
@@ -22,7 +17,7 @@ public class SwaggerConfig {
     private Info apiInfo() {
         return new Info()
                 .title("SPH API")
-                .description("SPH API Documentation")
+                .description("SPH 위치/측정 데이터 관리 API 문서")
                 .version("1.0");
     }
 }
