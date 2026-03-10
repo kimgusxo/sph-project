@@ -4,6 +4,7 @@ import OpenLayersMap from "./components/map/OpenLayersMap";
 import LocationCreateModal from "./components/modals/LocationCreateModal";
 import MeasurementRegisterModal from "./components/modals/MeasurementRegisterModal";
 import RadiusSearchModal from "./components/modals/RadiusSearchModal";
+import { getApiErrorMessage } from "./api/errorMessage";
 import {
   createLocation,
   searchAroundByAddress,
@@ -57,7 +58,7 @@ export default function App() {
       alert("위치가 생성되었습니다.");
     } catch (error) {
       console.error(error);
-      alert("위치 생성에 실패했습니다.");
+      alert(`위치 생성에 실패했습니다.\n사유: ${getApiErrorMessage(error)}`);
     }
   };
 
@@ -89,7 +90,7 @@ export default function App() {
       alert("측정값이 등록되었습니다.");
     } catch (error) {
       console.error(error);
-      alert("측정값 등록에 실패했습니다.");
+      alert(`측정값 등록에 실패했습니다.\n사유: ${getApiErrorMessage(error)}`);
     }
   };
 
@@ -136,7 +137,7 @@ export default function App() {
       alert("반경 조회가 완료되었습니다.");
     } catch (error) {
       console.error(error);
-      alert("반경 조회에 실패했습니다.");
+      alert(`반경 조회에 실패했습니다.\n사유: ${getApiErrorMessage(error)}`);
     }
   };
 
